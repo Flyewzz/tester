@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Задание</title>
+    <script type="text/javascript" src="/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css"
+    />
+    <link rel="stylesheet" href="/theme/dracula.css" />
+    <link rel="stylesheet" href="/theme/monokai.css" />
+
+    <script src="/mode/javascript/javascript.js"></script>
+    <script src="/mode/clike/clike.js"></script>
+  </head>
+  <body>
+    <div>
+      {{ .Title }}
+    </div>
+    <div id="container">
+      <textarea id="code" cols="60" rows="7"></textarea>
+      <input
+        type="submit"
+        name="preview-form-submit"
+        id="preview-form-submit"
+        value="Submit"
+      />
+    </div>
+
+    <form
+      enctype="multipart/form-data"
+      id="upload-container"
+      method="POST"
+      action="/test"
+    >
+      <!-- <img id="upload-image" src="upload.svg" /> -->
+      <!-- <div>
+        <input id="file-input" type="file" name="file" multiple />
+        <label for="file-input">Выберите файл</label>
+        <span>или перетащите его сюда</span>
+      </div>
+      <input type="submit" value="Send" /> -->
+    </form>
+  </body>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      lineNumbers: true, // Нумеровать каждую строчку.
+      matchBrackets: true,
+      mode: "text/x-c++src",
+      indentUnit: 2, // Длина отступа в пробелах.
+      indentWithTabs: true,
+      enterMode: "keep",
+      tabMode: "shift",
+      theme: "monokai"
+    });
+    $(document).ready(function() {
+      //when form submitted
+      $("#preview-form-submit").click(function(e) {
+        var value = editor.getValue();
+        alert;
+        if (value.length == 0) {
+          alert("Missing comment!");
+          return;
+        }
+        $.ajax({
+          url: "/test",
+          type: "POST",
+          data: value,
+          success: function(msg) {
+            alert(msg);
+          },
+          error: function(xhr, status, error) {
+            alert("Ошибка выполнения");
+          }
+        });
+      });
+    });
+  </script>
+</html>
