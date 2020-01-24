@@ -67,7 +67,7 @@
         $.ajax({
           url: "/test",
           type: "POST",
-          data: value,
+          data: {code: value},
           success: function(msg) {
             alert(msg);
           },
