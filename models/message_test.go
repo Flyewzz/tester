@@ -7,7 +7,7 @@ import (
 
 func TestNewMessage(t *testing.T) {
 	type args struct {
-		answer string
+		Status string
 		passed bool
 	}
 	tests := []struct {
@@ -19,7 +19,7 @@ func TestNewMessage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewMessage(tt.args.answer, tt.args.passed); !reflect.DeepEqual(got, tt.want) {
+			if got := NewMessage(tt.args.Status, tt.args.passed); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewMessage() = %v, want %v", got, tt.want)
 			}
 		})

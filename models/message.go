@@ -1,13 +1,13 @@
 package models
 
 type Message struct {
-	Answer string
+	Status string
 	Passed bool
 }
 
-func NewMessage(answer string, passed bool) *Message {
+func NewMessage(Status string, passed bool) *Message {
 	return &Message{
-		Answer: answer,
+		Status: Status,
 		Passed: passed,
 	}
 }
