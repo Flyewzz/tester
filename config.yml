@@ -1,2 +1,3 @@
 port: 80
+programPath: checker/task/main.cpp
 static_path: ./static

@@ -19,3 +19,9 @@
 .DS_Store
 
 static/
+
+checker/task/*
+checker/tests/*
+.vscode
+./tester
+bin/

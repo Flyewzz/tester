@@ -5,5 +5,8 @@ import (
 )
 
 func NewRouter() *mux.Router {
-	return mux.NewRouter()
+	router := mux.NewRouter()
+	router.StrictSlash(true)
+
+	return router
 }

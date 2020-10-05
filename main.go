@@ -11,8 +11,10 @@ import (
 func main() {
 	PrepareConfig()
 	r := NewRouter()
+	c := CorsSetup()
+	corsHandler := c.Handler(r)
 	apiManager := PrepareApiManager()
 	handlers.ConfigureHandlers(r, apiManager)
 	fmt.Println("Server is listening...")
-	http.ListenAndServe(":"+viper.GetString("port"), r)
+	http.ListenAndServe(":"+viper.GetString("port"), corsHandler)
 }
