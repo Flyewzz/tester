@@ -18,10 +18,13 @@
 # For macOS
 .DS_Store
 
+.vscode
+
 static/
 
 checker/task/*
 checker/tests/*
-.vscode
-./tester
+tester
 bin/
+node_modules
+yarn.lock

@@ -1,0 +1,29 @@
+table {
+  width: 400px; /* Ширина таблицы */
+  border-collapse: collapse; /* Убираем двойные линии между ячейками */
+}
+
+table:last-of-type {
+  text-align: center;
+}
+
+td,
+th {
+  padding: 3px; /* Поля вокруг содержимого таблицы */
+  border: 1px solid black; /* Параметры рамки */
+}
+th {
+  background: #b0e0e6; /* Цвет фона */
+}
+
+table:last-of-type td:last-child {
+  text-align: left;
+}
+
+body {
+  padding: 20px 20px;
+}
+
+caption {
+  font-style: italic;
+}
