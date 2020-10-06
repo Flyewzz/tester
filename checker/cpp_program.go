@@ -2,6 +2,7 @@ package checker
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -30,7 +31,7 @@ func NewCppProgram(path, memoryLimit,
 	}
 }
 
-func (p *CppProgram) Run(input string) (string, error) {
+func (p *CppProgram) Run(ctx context.Context, input string) (string, error) {
 
 	// filepath.Dir(p.Path))) - a directory contains the executing program
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
@@ -42,10 +43,19 @@ func (p *CppProgram) Run(input string) (string, error) {
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return "", errors.New(fmt.Sprint(err) + ": " + stderr.String())
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- cmd.Run()
+	}()
+	var err error
+	select {
+	case <-ctx.Done():
+		cmd.Process.Kill()
+	case err = <-errCh:
+		if err != nil {
+			fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+			return "", errors.New(fmt.Sprint(err) + ": " + stderr.String())
+		}
 	}
 	return out.String(), nil
 }
@@ -73,9 +83,10 @@ TESTLOOP:
 		var result string
 		timer := time.NewTimer(time.Duration(p.TimeLimit+1800) * time.Millisecond)
 		ready := make(chan struct{})
+		ctx, cancel := context.WithCancel(context.Background())
 		go func(test *Test) {
 			ready <- struct{}{}
-			result, err := p.Run(test.Input)
+			result, err := p.Run(ctx, test.Input)
 			answerCh <- Answer{
 				result: result,
 				err:    err,
@@ -85,6 +96,7 @@ TESTLOOP:
 		<-ready
 		select {
 		case <-timer.C:
+			cancel() // Kill the process
 			log.Printf("Time limit exceeded for %s:\n", test.Name)
 			verdict = NewVerdict(test.Name, "TL")
 			verdict.Message = "Time limit exceeded"
@@ -95,7 +107,13 @@ TESTLOOP:
 		}
 		if answer.err != nil {
 			log.Printf("Error for %s:\n %s\n", test.Name, answer.err.Error())
-			verdict = NewVerdict(test.Name, "CE")
+			statusAnswer := "CE"
+
+			if strings.Contains(answer.err.Error(), "137") {
+				statusAnswer = "ML" // Memory limit
+			}
+
+			verdict = NewVerdict(test.Name, statusAnswer)
 			verdict.Message = answer.err.Error()
 			verdicts = append(verdicts, verdict)
 			break

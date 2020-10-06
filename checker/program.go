@@ -1,6 +1,8 @@
 package checker
 
+import "context"
+
 type Program interface {
-	Run(input string) (string, error)
+	Run(ctx context.Context, input string) (string, error)
 	Check() []*Verdict
 }
