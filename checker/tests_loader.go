@@ -2,10 +2,28 @@ package checker
 
 import (
 	"io/ioutil"
+	"path/filepath"
+	"strconv"
 	"strings"
 )
 
-func GetTestsNames(path string) ([]string, error) {
+type TestLoader struct {
+	Path string
+}
+
+func (loader TestLoader) Load(id int) []*Test {
+	pathToTests := filepath.Join(loader.Path, strconv.Itoa(id))
+	names, _ := loader.GetTestsNames(pathToTests)
+	var tests []*Test
+	for _, name := range names {
+		test, _ := loader.GetTest(filepath.Join(pathToTests, name))
+		tests = append(tests, test)
+	}
+	return tests
+}
+
+
+func (loader *TestLoader) GetTestsNames(path string) ([]string, error) {
 	tests, err := ioutil.ReadDir(path)
 	if err != nil {
 		return []string{}, nil
@@ -21,7 +39,7 @@ func GetTestsNames(path string) ([]string, error) {
 	return dirNames, nil
 }
 
-func GetTest(path string) (*Test, error) {
+func (loader *TestLoader) GetTest(path string) (*Test, error) {
 	testFolder, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, err

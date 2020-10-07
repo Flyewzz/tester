@@ -1,8 +1,12 @@
 package checker
 
-import "context"
+import (
+	"context"
+
+	"github.com/Flyewzz/tester/models"
+)
 
 type Program interface {
-	Run(ctx context.Context, input string) (string, error)
+	Run(ctx context.Context, input string) (models.Result, error)
 	Check() []*Verdict
 }

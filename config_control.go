@@ -8,6 +8,7 @@ import (
 	// "github.com/Flyewzz/golang-itv/handlers"
 	// "github.com/Flyewzz/golang-itv/store"
 	// "github.com/Flyewzz/golang-itv/workers/dispatcher"
+	"github.com/Flyewzz/tester/checker"
 	"github.com/Flyewzz/tester/handlers"
 	"github.com/spf13/viper"
 )
@@ -27,5 +28,8 @@ func PrepareApiManager() *handlers.ApiManager {
 	// workersTimeout := viper.GetInt("workers.timeout")
 	// dispatcher := dispatcher.NewDispatcher(countWorkers, maxTasks, workersTimeout, executor, storeController)
 	// dispatcher.Dispatch()
-	return handlers.NewApiManager()
+	loader := checker.TestLoader{
+		Path: viper.GetString("task_path"),
+	}
+	return handlers.NewApiManager(loader)
 }

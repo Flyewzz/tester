@@ -1,12 +1,15 @@
 package handlers
 
 import (
-// . "github.com/Flyewzz/golang-itv/interfaces"
+	"github.com/Flyewzz/tester/interfaces"
 )
 
 type ApiManager struct {
+	TestLoader interfaces.TestLoader
 }
 
-func NewApiManager() *ApiManager {
-	return &ApiManager{}
+func NewApiManager(loader interfaces.TestLoader) *ApiManager {
+	return &ApiManager{
+		TestLoader: loader,
+	}
 }

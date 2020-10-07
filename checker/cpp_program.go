@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/Flyewzz/tester/models"
 )
 
 type CppProgram struct {
@@ -31,57 +33,61 @@ func NewCppProgram(path, memoryLimit,
 	}
 }
 
-func (p *CppProgram) Run(ctx context.Context, input string) (string, error) {
-
+func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, error) {
 	// filepath.Dir(p.Path))) - a directory contains the executing program
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
+	path, _ := filepath.Abs(filepath.Dir(p.Path))
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("timeout 5 docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
 		"-v %s:/program frolvlad/alpine-gxx "+
 		"/bin/sh -c \"g++ program/main.cpp && ./a.out\"",
-		p.MemoryLimit, p.DiskLimit, p.CpuLimit, filepath.Dir(p.Path)))
+		p.MemoryLimit, p.DiskLimit, p.CpuLimit, path))
 	cmd.Stdin = strings.NewReader(input)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
 	errCh := make(chan error, 1)
+	ready := make(chan struct{})
 	go func() {
+		ready <- struct{}{}
 		errCh <- cmd.Run()
 	}()
+	<-ready
 	var err error
 	select {
 	case <-ctx.Done():
-		cmd.Process.Kill()
+		if err := cmd.Process.Kill(); err != nil {
+			log.Printf("failed to kill process: %v\n", err)
+		} else {
+			log.Println("Correct closing")
+		}
 	case err = <-errCh:
 		if err != nil {
 			fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-			return "", errors.New(fmt.Sprint(err) + ": " + stderr.String())
+			
+			return models.Result{
+				Out: "",
+				ExitCode: cmd.ProcessState.ExitCode(),
+			}, errors.New(fmt.Sprint(err) + ": " + stderr.String())
 		}
 	}
-	return out.String(), nil
+	return models.Result {
+				Out: out.String(),
+				ExitCode: cmd.ProcessState.ExitCode(),
+			}, nil
 }
 
-func (p *CppProgram) Check() []*Verdict {
-	const testsPath string = "checker/tests/"
-
-	names, _ := GetTestsNames(testsPath)
-	var tests []*Test
-	for _, name := range names {
-		test, _ := GetTest(testsPath + name)
-		tests = append(tests, test)
-	}
-
+func (p *CppProgram) Check(tests []*Test) []*Verdict {
 	fmt.Println("----------------------")
 	var verdicts []*Verdict
 	type Answer struct {
-		result string
+		result models.Result
 		err    error
 	}
 TESTLOOP:
 	for _, test := range tests {
 		answerCh := make(chan Answer, 1)
 		answer := Answer{}
-		var result string
-		timer := time.NewTimer(time.Duration(p.TimeLimit+1800) * time.Millisecond)
+		timer := time.NewTimer(time.Duration(p.TimeLimit+2500) * time.Millisecond)
 		ready := make(chan struct{})
 		ctx, cancel := context.WithCancel(context.Background())
 		go func(test *Test) {
@@ -109,7 +115,7 @@ TESTLOOP:
 			log.Printf("Error for %s:\n %s\n", test.Name, answer.err.Error())
 			statusAnswer := "CE"
 
-			if strings.Contains(answer.err.Error(), "137") {
+			if answer.result.ExitCode == 139 {
 				statusAnswer = "ML" // Memory limit
 			}
 
@@ -118,12 +124,12 @@ TESTLOOP:
 			verdicts = append(verdicts, verdict)
 			break
 		}
-		fmt.Printf("Result for %s: \n %s\n", test.Name, result)
-		if test.Output != answer.result {
+		if test.Output != answer.result.Out {
 			verdict = NewVerdict(test.Name, "WA")
 		} else {
 			verdict = NewVerdict(test.Name, "OK")
 		}
+		fmt.Printf("Result for %s: %s\n", test.Name, verdict.Status)
 		verdicts = append(verdicts, verdict)
 		if verdict.Status == "WA" {
 			break

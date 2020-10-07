@@ -21,7 +21,7 @@
 static/
 
 checker/task/*
-checker/tests/*
+checker/tasks/*
 .vscode
 ./tester
 bin/
