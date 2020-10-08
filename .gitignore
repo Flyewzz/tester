@@ -25,3 +25,4 @@ checker/tasks/*
 .vscode
 ./tester
 bin/
+*.db

@@ -5,11 +5,14 @@ import (
 )
 
 type ApiManager struct {
-	TestLoader interfaces.TestLoader
+	TestLoader  interfaces.TestLoader
+	TaskStorage interfaces.TaskStorage
 }
 
-func NewApiManager(loader interfaces.TestLoader) *ApiManager {
+func NewApiManager(loader interfaces.TestLoader,
+	storage interfaces.TaskStorage) *ApiManager {
 	return &ApiManager{
-		TestLoader: loader,
+		TestLoader:  loader,
+		TaskStorage: storage,
 	}
 }

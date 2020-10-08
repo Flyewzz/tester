@@ -15,19 +15,26 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (api *ApiManager) MainHandler(w http.ResponseWriter, r *http.Request) {
-	// type Data struct {
-	// 	Title string
-	// 	Task  string
-	// }
-	// t, _ := template.ParseFiles("pages/index.html") // Parse template file.
-	// title := "На вход подается массив чисел через пробел. <br> Выведите все отрицательные числа в виде " +
-	// 	"отсортированного по возрастанию массива."
-	// task := ""
-	// t.Execute(w, Data{
-	// 	Title: title,
-	// 	Task:  task,
-	// })
+func (api *ApiManager) TaskInfoGetHandler(w http.ResponseWriter, r *http.Request) {
+	strId := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		http.Error(w, "Incorrect id", http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("id: %d\n", id)
+
+	taskInfo, err := api.TaskStorage.GetInfo(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	data, err := json.Marshal(taskInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(data))
 }
 
 func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +49,7 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	vars := mux.Vars(r)
-	
+
 	strId, ok := vars["id"]
 	if !ok {
 		http.Error(w, "Id is required", http.StatusInternalServerError)
@@ -53,14 +60,13 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Incorrect id", http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("id: %d\n", id)
 	params := r.FormValue
 	code := params("code")
 	fmt.Println(code)
 
-	folderPath := "checker/task/" + 
-	strings.Replace(uuid.NewV4().String(),
-						"-", "", -1)
+	folderPath := "checker/task/" +
+		strings.Replace(uuid.NewV4().String(),
+			"-", "", -1)
 
 	programPath := filepath.Join(folderPath, "main.cpp")
 
@@ -70,7 +76,7 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	defer os.RemoveAll(folderPath)
-	
+
 	programFile, err := os.Create(programPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

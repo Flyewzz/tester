@@ -1,3 +1,5 @@
 port: 5005
 task_path: <something_path>
+sqlite:
+  path: ./tasks.db
 static_path: ./static
