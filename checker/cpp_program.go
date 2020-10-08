@@ -36,7 +36,7 @@ func NewCppProgram(path, memoryLimit,
 func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, error) {
 	// filepath.Dir(p.Path))) - a directory contains the executing program
 	path, _ := filepath.Abs(filepath.Dir(p.Path))
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("timeout 15 docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
 		"-v %s:/program frolvlad/alpine-gxx "+
 		"/bin/sh -c \"g++ program/main.cpp && ./a.out\"",
 		p.MemoryLimit+"m", p.DiskLimit+"m", p.CpuLimit, path))
@@ -55,8 +55,8 @@ func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, erro
 	var err error
 	select {
 	case <-ctx.Done():
-		if err := cmd.Process.Kill(); err != nil {
-			log.Printf("failed to kill process: %v\n", err)
+		if err := exec.Command("bash", "-c", "docker ps | awk '{ print $1,$2 }' | grep frolvlad/alpine-gxx | awk '{print $1 }' | xargs -I {} docker rm -f {}").Run(); err != nil {
+			log.Printf("failed to remove containers: %v\n", err)
 		} else {
 			log.Println("Correct closing")
 		}
