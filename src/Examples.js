@@ -2,6 +2,20 @@ import React from 'react';
 
 
 function Examples(props) {
+
+    const getSamples = (samples) => {
+      samples = samples.split('|');
+      let tags = [];
+      for (let i = 0; i < samples.length; i += 2) {
+        tags.push(
+          <tr>
+          <td>{ samples[i] }</td>
+          <td>{ samples[i+1] }<br /></td>
+        </tr>);
+      }
+      return tags;
+    }
+
     return (
         <table>
         <caption style={{marginBottom: "10px"}}>
@@ -12,14 +26,7 @@ function Examples(props) {
           <th>Выходные данные</th>
         </thead>
         <tbody>
-          <tr>
-            <td>3 2</td>
-            <td>23<br /></td>
-          </tr>
-          <tr>
-            <td>2 4</td>
-            <td>-8<br /></td>
-          </tr>
+         {props.samples && getSamples(props.samples)}
         </tbody>
       </table>
     )

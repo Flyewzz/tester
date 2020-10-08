@@ -1,8 +1,8 @@
 import config from "./config";
 
 class VerdictService {
-  getVerdicts = async (code) => {
-    const url = config.backendUrl + "/test";
+  getVerdicts = async (id, code) => {
+    const url = config.backendUrl + `/test/${id}`;
     const formData = new FormData();
     formData.append("code", code);
     const options = {

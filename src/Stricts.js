@@ -1,18 +1,30 @@
-import React from 'react';
-
+import React from "react";
 
 function Stricts(props) {
-    return (
-        <div>
+  return (
+    <>
+      <div>
         <br />
-        <span>Ограничение по памяти: <strong>{props.mem}</strong></span
-        ><br />
-        <span>Ограничение по дисковой памяти: <strong>{props.hdd}</strong></span
-        ><br />
-        <span>Ограничение по времени выполнения: <strong>{props.time}</strong></span
-        >
-        </div>
-    )
+        <span>
+          Ограничение по памяти: <strong>{props.mem}</strong>
+        </span>
+        <br />
+        <span>
+          Ограничение по дисковой памяти: <strong>{props.hdd}</strong>
+        </span>
+        <br />
+        <span>
+          Ограничение по времени выполнения: <strong>{props.time}</strong>
+        </span>
+      </div>
+      <div>
+        <span>Прочие ограничения: </span>
+        <span>
+          <strong>{props.limitations}</strong>
+        </span>
+      </div>
+    </>
+  );
 }
 
 export default Stricts;
