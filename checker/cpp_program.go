@@ -36,10 +36,10 @@ func NewCppProgram(path, memoryLimit,
 func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, error) {
 	// filepath.Dir(p.Path))) - a directory contains the executing program
 	path, _ := filepath.Abs(filepath.Dir(p.Path))
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("timeout 5 docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("timeout 15 docker run --rm -i --memory=%s --memory-swap %s --cpus=%s "+
 		"-v %s:/program frolvlad/alpine-gxx "+
 		"/bin/sh -c \"g++ program/main.cpp && ./a.out\"",
-		p.MemoryLimit, p.DiskLimit, p.CpuLimit, path))
+		p.MemoryLimit+"m", p.DiskLimit+"m", p.CpuLimit, path))
 	cmd.Stdin = strings.NewReader(input)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -63,17 +63,17 @@ func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, erro
 	case err = <-errCh:
 		if err != nil {
 			fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-			
+
 			return models.Result{
-				Out: "",
+				Out:      "",
 				ExitCode: cmd.ProcessState.ExitCode(),
 			}, errors.New(fmt.Sprint(err) + ": " + stderr.String())
 		}
 	}
-	return models.Result {
-				Out: out.String(),
-				ExitCode: cmd.ProcessState.ExitCode(),
-			}, nil
+	return models.Result{
+		Out:      out.String(),
+		ExitCode: cmd.ProcessState.ExitCode(),
+	}, nil
 }
 
 func (p *CppProgram) Check(tests []*Test) []*Verdict {
@@ -87,7 +87,7 @@ TESTLOOP:
 	for _, test := range tests {
 		answerCh := make(chan Answer, 1)
 		answer := Answer{}
-		timer := time.NewTimer(time.Duration(p.TimeLimit+2500) * time.Millisecond)
+		timer := time.NewTimer(time.Duration(p.TimeLimit) * time.Millisecond)
 		ready := make(chan struct{})
 		ctx, cancel := context.WithCancel(context.Background())
 		go func(test *Test) {
@@ -115,7 +115,7 @@ TESTLOOP:
 			log.Printf("Error for %s:\n %s\n", test.Name, answer.err.Error())
 			statusAnswer := "CE"
 
-			if answer.result.ExitCode == 139 {
+			if answer.result.ExitCode == 139 || answer.result.ExitCode == 137 {
 				statusAnswer = "ML" // Memory limit
 			}
 

@@ -22,7 +22,6 @@ func (api *ApiManager) TaskInfoGetHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Incorrect id", http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("id: %d\n", id)
 
 	taskInfo, err := api.TaskStorage.GetInfo(id)
 	if err != nil {
@@ -64,6 +63,12 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 	code := params("code")
 	fmt.Println(code)
 
+	taskInfo, err := api.TaskStorage.GetInfo(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	folderPath := "checker/task/" +
 		strings.Replace(uuid.NewV4().String(),
 			"-", "", -1)
@@ -89,12 +94,19 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	timeLimit, err := strconv.Atoi(taskInfo.Time)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Deviation depends on computer's power
 	program := checker.NewCppProgram(
 		programPath,
-		"100m",
-		"110m",
-		".500",
-		800,
+		taskInfo.Ram,
+		taskInfo.HDD,
+		".800",
+		timeLimit+api.Deviation,
 	)
 
 	tests := api.TestLoader.Load(id)

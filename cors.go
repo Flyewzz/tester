@@ -20,6 +20,6 @@ func CorsSetup() *cors.Cors {
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 		// Enable Debugging for testing, consider disabling in production
-		Debug: true,
+		Debug: false,
 	})
 }

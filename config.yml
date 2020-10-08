@@ -2,4 +2,7 @@ port: 5005
 task_path: <something_path>
 sqlite:
   path: ./tasks.db
+time:
+  execution:
+    deviation: 0
 static_path: ./static

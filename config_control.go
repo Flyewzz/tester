@@ -22,5 +22,10 @@ func PrepareApiManager() *handlers.ApiManager {
 		Path: viper.GetString("task_path"),
 	}
 	taskStorage := sqlite.NewTaskStorage(viper.GetString("sqlite.path"))
-	return handlers.NewApiManager(loader, taskStorage)
+	deviation := viper.GetInt("time.execution.deviation")
+	return &handlers.ApiManager{
+		TestLoader:  loader,
+		TaskStorage: taskStorage,
+		Deviation:   deviation,
+	}
 }
