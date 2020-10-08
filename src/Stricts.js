@@ -6,15 +6,15 @@ function Stricts(props) {
       <div>
         <br />
         <span>
-          Ограничение по памяти: <strong>{props.mem}</strong>
+          Ограничение по памяти: <strong>{props.mem} MB</strong>
         </span>
         <br />
         <span>
-          Ограничение по дисковой памяти: <strong>{props.hdd}</strong>
+          Ограничение по дисковой памяти: <strong>{props.hdd} MB</strong>
         </span>
         <br />
         <span>
-          Ограничение по времени выполнения: <strong>{props.time}</strong>
+          Ограничение по времени выполнения: <strong>{props.time} ms</strong>
         </span>
       </div>
       <div>
