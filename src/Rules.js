@@ -36,7 +36,6 @@ function Rules(props) {
           </td>
           <td>Compilation Error</td>
           <td>
-            {" "}
             Произошла ошибка компиляции (указывается сообщение об ошибке в поле
             сообщений)
           </td>
@@ -48,7 +47,16 @@ function Rules(props) {
             </i>
           </td>
           <td>Time Limit</td>
-          <td>Программа выдает неправильный результат</td>
+          <td>Программа работает слишком долго или неоптимально</td>
+        </tr>
+        <tr>
+          <td style={{ color: "red", textAlign: "center" }}>
+            <i>
+              <b>ML</b>
+            </i>
+          </td>
+          <td>Memory Limit</td>
+          <td>Программа расходует слишком много оперативной памяти (например, при бесконечной рекурсии)</td>
         </tr>
       </tbody>
     </table>
