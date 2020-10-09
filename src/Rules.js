@@ -1,8 +1,10 @@
 import React from "react";
+import './Rules.css';
+
 
 function Rules(props) {
   return (
-    <table>
+    <table className='table-rules'>
       <caption style={{ marginBottom: "10px" }}>Условные обозначения</caption>
       <thead>
         <th>Код возврата</th>
@@ -11,7 +13,7 @@ function Rules(props) {
       </thead>
       <tbody>
         <tr>
-          <td style={{ color: "green", textAlign: "center" }}>
+          <td>
             <i>
               <b>OK</b>
             </i>
@@ -20,7 +22,7 @@ function Rules(props) {
           <td>Тест пройден</td>
         </tr>
         <tr>
-          <td style={{ color: "red", textAlign: "center" }}>
+          <td>
             <i>
               <b>WA</b>
             </i>
@@ -29,26 +31,34 @@ function Rules(props) {
           <td>Программа выдает неправильный результат</td>
         </tr>
         <tr>
-          <td style={{ color: "red", textAlign: "center" }}>
+          <td>
             <i>
               <b>CE</b>
             </i>
           </td>
           <td>Compilation Error</td>
           <td>
-            {" "}
             Произошла ошибка компиляции (указывается сообщение об ошибке в поле
             сообщений)
           </td>
         </tr>
         <tr>
-          <td style={{ color: "red", textAlign: "center" }}>
+          <td>
             <i>
               <b>TL</b>
             </i>
           </td>
           <td>Time Limit</td>
-          <td>Программа выдает неправильный результат</td>
+          <td>Программа работает слишком долго или неоптимально</td>
+        </tr>
+        <tr>
+          <td>
+            <i>
+              <b>ML</b>
+            </i>
+          </td>
+          <td>Memory Limit</td>
+          <td>Программа расходует слишком много оперативной памяти (например, при бесконечной рекурсии)</td>
         </tr>
       </tbody>
     </table>

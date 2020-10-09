@@ -1,4 +1,6 @@
 import React from "react";
+import './Examples.css';
+
 
 function Examples(props) {
   const toNewLines = (string) => {
@@ -25,7 +27,7 @@ function Examples(props) {
   };
 
   return (
-    <table>
+    <table className="table-examples">
       <caption style={{ marginBottom: "10px" }}>Примеры</caption>
       <thead>
         <th>Входные данные</th>

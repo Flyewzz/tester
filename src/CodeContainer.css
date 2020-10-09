@@ -1,7 +1,15 @@
 .input {
-  background-color: #b0e0e6;
   margin: 10px auto;
-  border-radius: 3px;
+  border-radius: 2%;
+
+  border: none;
+
+  font-size: x-large;
   height: 40px;
-  width: 80px;
+  width: auto;
+  padding: 5px 20px;
+  margin: 10px 0px 30px 2px;
+  background: #b0e0e6b4; /* Цвет фона */
+  color: #001925;
+
 }

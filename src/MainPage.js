@@ -97,23 +97,25 @@ class MainPage extends React.Component {
           type="text/javascript"
           src="/mode/python/python.js"
         />
-        <div id="task">
+        <div className="task">
           <blockquote>
-            <span style={{ fontStyle: "italic" }}>
-              <b>Задание</b>
+            <div className={"task-title"}>
+              Задание #{this.id}
               <br />
-              {this.state.items.taskInfo.text}
-            </span>
+            </div>
+            <div className={"task-text"}>{this.state.items.taskInfo.text}</div>
           </blockquote>
-          <Stricts
-            mem={this.state.items.taskInfo.ram}
-            hdd={this.state.items.taskInfo.hdd}
-            time={this.state.items.taskInfo.time}
-            limitations={this.state.items.taskInfo.limitations}
-          />
-          <br />
-          <br />
-          <Examples samples={this.state.items.taskInfo.samples} />
+          <div className={"task-info"}>
+            <Stricts
+              mem={this.state.items.taskInfo.ram}
+              hdd={this.state.items.taskInfo.hdd}
+              time={this.state.items.taskInfo.time}
+              limitations={this.state.items.taskInfo.limitations}
+            />
+          </div>
+          <div className={"task-info"}>
+            <Examples samples={this.state.items.taskInfo.samples} />
+          </div>
           <br />
           <br />
           <Rules />

@@ -1,23 +1,44 @@
 table {
-  width: 400px; /* Ширина таблицы */
+  /* width: 750px; Ширина таблицы */
   border-collapse: collapse; /* Убираем двойные линии между ячейками */
+  border-radius: 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
 }
 
 table:last-of-type {
   text-align: center;
 }
 
-td,
-th {
-  padding: 3px; /* Поля вокруг содержимого таблицы */
-  border: 1px solid black; /* Параметры рамки */
-}
-th {
-  background: #b0e0e6; /* Цвет фона */
+table {
+  /* border:1px solid rgb(160, 160, 160); */
+  border-collapse: collapse;
 }
 
-table:last-of-type td:last-child {
-  text-align: left;
+table td {
+  border: 1px solid rgb(160, 160, 160);
+}
+
+table td:first-child {
+  border-left: none;
+}
+
+table td:last-child {
+  border-right: none;
+}
+
+table th:not(:last-child) {
+  border-right: 1px solid rgb(160, 160, 160);
+}
+
+td,
+th {
+  padding: 10px; /* Поля вокруг содержимого таблицы */
+  font-size: 20px;
+}
+th {
+  background: #b0e0e6b4; /* Цвет фона */
+  color: #00272c;
 }
 
 body {
@@ -25,5 +46,27 @@ body {
 }
 
 caption {
-  font-style: italic;
+  padding-bottom: 12px;
+  font-size: 30px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  text-align: left;
+  color: #00272c;
+}
+
+.task-text {
+  color: #00272c;
+  font-size: 20px;
+}
+
+.task-title {
+  font-size: 30px;
+  padding-bottom: 12px;
+  color: #00272c;
+}
+
+.task-info {
+  font-size: 17px;
+  padding-bottom: 12px;
+  margin-bottom: 15px;
+  color: #00272c;
 }

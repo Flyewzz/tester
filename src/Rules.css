@@ -1,0 +1,16 @@
+.table-rules td:first-child {
+    text-align: center !important;
+}
+
+.table-rules td:last-of-type {
+    text-align: left;
+}
+
+.table-rules td:first-of-type {
+    text-align: left;
+    color: red;
+}
+
+.table-rules tr:first-of-type > td:first-of-type{
+    color: green;
+}

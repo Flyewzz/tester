@@ -1,4 +1,5 @@
 import React from "react";
+import './Results.css';
 
 
 class Results extends React.Component {
@@ -24,7 +25,7 @@ class Results extends React.Component {
     return this.props.verdicts == null ? (
       <span>Обработка...</span>
     ) : (
-      <table>
+      <table className='table-results'>
         <thead>
           <th>Название</th>
           <th>Статус</th>
