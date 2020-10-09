@@ -1,66 +1,66 @@
 import React from "react";
-import './Rules.css';
-
+import "./Rules.css";
 
 function Rules(props) {
+  const cases = [
+    {
+      code: "OK",
+      transcript: "OK",
+      description: "Тест пройден",
+    },
+    {
+      code: "WA",
+      transcript: "Wrong answer",
+      description: "Программа выдает неправильный результат",
+    },
+    {
+      code: "CE",
+      transcript: "Compilation error",
+      description: `Произошла ошибка компиляции (указывается сообщение об ошибке в поле
+        сообщений)`,
+    },
+    {
+      code: "TL",
+      transcript: "Time limit",
+      description: `Программа работает слишком долго или неоптимально`,
+    },
+    {
+      code: "ML",
+      transcript: "Memory limit",
+      description: `Программа расходует слишком много оперативной памяти (например, при бесконечной рекурсии)`,
+    },
+  ];
+  const getCases = (cases) => {
+    return cases.map((state) => {
+      return (
+        <tr>
+          <td>
+            <i>
+              <b
+                className={
+                  state.code === "OK" ? "positive-answer" : "negative-answer"
+                }
+              >
+                {state.code}
+              </b>
+            </i>
+          </td>
+          <td>{state.transcript}</td>
+          <td>{state.description}</td>
+        </tr>
+      );
+    });
+  };
+
   return (
-    <table className='table-rules'>
+    <table className="table-rules">
       <caption style={{ marginBottom: "10px" }}>Условные обозначения</caption>
       <thead>
         <th>Код возврата</th>
         <th>Расшифровка</th>
         <th>Значение</th>
       </thead>
-      <tbody>
-        <tr>
-          <td>
-            <i>
-              <b>OK</b>
-            </i>
-          </td>
-          <td>OK</td>
-          <td>Тест пройден</td>
-        </tr>
-        <tr>
-          <td>
-            <i>
-              <b>WA</b>
-            </i>
-          </td>
-          <td>Wrong Answer</td>
-          <td>Программа выдает неправильный результат</td>
-        </tr>
-        <tr>
-          <td>
-            <i>
-              <b>CE</b>
-            </i>
-          </td>
-          <td>Compilation Error</td>
-          <td>
-            Произошла ошибка компиляции (указывается сообщение об ошибке в поле
-            сообщений)
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <i>
-              <b>TL</b>
-            </i>
-          </td>
-          <td>Time Limit</td>
-          <td>Программа работает слишком долго или неоптимально</td>
-        </tr>
-        <tr>
-          <td>
-            <i>
-              <b>ML</b>
-            </i>
-          </td>
-          <td>Memory Limit</td>
-          <td>Программа расходует слишком много оперативной памяти (например, при бесконечной рекурсии)</td>
-        </tr>
-      </tbody>
+      <tbody>{getCases(cases)}</tbody>
     </table>
   );
 }

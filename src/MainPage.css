@@ -70,3 +70,33 @@ caption {
   margin-bottom: 15px;
   color: #00272c;
 }
+
+.negative-answer {
+  color: rgb(197, 18, 18);
+}
+
+.positive-answer {
+  color: green;
+}
+
+.code-results {
+  /* display: flex;
+  flex-direction: row; */
+  margin-top: 20px;
+}
+
+.input {
+  margin: 10px auto;
+  border-radius: 2%;
+
+  border: none;
+
+  font-size: x-large;
+  height: 40px;
+  width: auto;
+  padding: 5px 20px;
+  margin: 10px 0px 30px 2px;
+  background: #b0e0e6b4; /* Цвет фона */
+  color: #001925;
+  cursor: pointer;
+}

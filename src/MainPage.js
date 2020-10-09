@@ -4,11 +4,16 @@ import Stricts from "./Stricts";
 import ScriptTag from "react-script-tag";
 import Results from "./Results";
 import Examples from "./Examples";
-import CodeContainer from "./CodeContainer";
 import VerdictService from "./VerdictService";
 import TaskService from "./TaskService";
 import { Helmet } from "react-helmet";
 import Rules from "./Rules";
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 class MainPage extends React.Component {
   constructor(props) {
@@ -25,20 +30,27 @@ class MainPage extends React.Component {
     this.state.items.taskInfo = {};
     this.id = null;
   }
-
+  
   componentDidMount() {
     this.id = this.props.match.params.id;
     this.taskService
-      .getInfo(this.id)
-      .then((result) => {
-        this.updateInfo(result);
-      })
-      .catch((error) => {
-        this.updateInfo({});
-        alert(error);
-      });
+    .getInfo(this.id)
+    .then((result) => {
+      this.updateInfo(result);
+    })
+    .catch((error) => {
+      this.updateInfo({});
+      alert(error);
+    });
+    const editor = this.ace.editor;
+    editor.setFontSize(16);
+    editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
+      enableSnippets: true,
+    });
   }
-
+  
   updateInfo = (info) => {
     this.setState((prevState) => ({
       items: {
@@ -47,7 +59,7 @@ class MainPage extends React.Component {
       },
     }));
   };
-
+  
   updateVerdicts = (verdicts) => {
     this.setState((prevState) => ({
       items: {
@@ -56,11 +68,12 @@ class MainPage extends React.Component {
       },
     }));
   };
-
-  handleChange = (e) => {
-    this.code = e.getValue();
+  
+  handleChange = (newValue, e) => {
+    const editor = this.ace.editor; // The editor object is from Ace's API
+    this.code = editor.getValue()
   };
-
+  
   onSubmitClick = (e) => {
     e.preventDefault();
     this.updateVerdicts(null);
@@ -87,7 +100,7 @@ class MainPage extends React.Component {
           type="text/javascript"
           src="/mode/javascript/javascript.js"
         />
-        <ScriptTag
+        {/* <ScriptTag
           isHydrating={true}
           type="text/javascript"
           src="/mode/clike/clike.js"
@@ -95,8 +108,8 @@ class MainPage extends React.Component {
         <ScriptTag
           isHydrating={true}
           type="text/javascript"
-          src="/mode/python/python.js"
-        />
+          src="/mode/python/python.js"  
+        /> */}
         <div className="task">
           <blockquote>
             <div className={"task-title"}>
@@ -122,13 +135,34 @@ class MainPage extends React.Component {
         </div>
         <br />
         <br />
-        <CodeContainer
-          onChange={this.handleChange}
-          onClick={this.onSubmitClick}
-          code={this.code}
-          lang="c++"
-        />
-        <Results verdicts={this.state.items.verdicts} />
+        <div className="code-results">
+          <div>
+            <AceEditor
+              mode="c_cpp"
+              theme="monokai"
+              onChange={this.handleChange}
+              name="UNIQUE_ID_OF_DIV"
+              style={{ height: "500px", width: "auto" }}
+              ref={(instance) => {
+                this.ace = instance;
+              }} // Let's put things into scope
+            />
+
+            <form encType="multipart/form-data">
+              <input
+                className={"input"}
+                type="submit"
+                name="preview-form-submit"
+                id="preview-form-submit"
+                value="Submit"
+                onClick={this.onSubmitClick}
+              />
+            </form>
+          </div>
+          <div>
+            <Results verdicts={this.state.items.verdicts} />
+          </div>
+        </div>
       </>
     );
   }
