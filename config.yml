@@ -2,7 +2,16 @@ port: 5005
 task_path: <something_path>
 sqlite:
   path: ./tasks.db
+db:
+  host: localhost
+  port: 5432
+  user: postgres
+  database: postgres
+  password: password
 time:
   execution:
     deviation: 0
+jwt:
+  duration: 720
+  secret_key: 
 static_path: ./static

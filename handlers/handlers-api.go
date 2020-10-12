@@ -8,7 +8,11 @@ import (
 )
 
 func ConfigureHandlers(r *mux.Router, api *ApiManager) {
-	r.HandleFunc("/", api.TaskInfoGetHandler).Methods("GET")
-	r.HandleFunc("/test/{id}", api.TaskCheckerHandler).Methods("POST")
+	r.HandleFunc("/", api.AuthMiddleware(http.HandlerFunc(api.TaskInfoGetHandler))).Methods("GET")
+	r.HandleFunc("/test/{id}", api.AuthMiddleware(http.HandlerFunc(api.TaskCheckerHandler))).Methods("POST")
+	authRouter := r.PathPrefix("/auth").Subrouter()
+	authRouter.HandleFunc("/login", api.LoginHandler).Methods("POST")
+	authRouter.HandleFunc("/signup", api.SignUpHandler).Methods("POST")
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(viper.GetString("static_path"))))
+
 }

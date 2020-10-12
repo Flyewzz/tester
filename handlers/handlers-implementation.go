@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Flyewzz/tester/checker"
-	"github.com/gorilla/mux"
+	"github.com/Flyewzz/tester/models"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -47,7 +47,8 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	vars := mux.Vars(r)
+	props := r.Context().Value("props").(map[string]interface{})
+	vars := props["vars"].(map[string]string)
 
 	strId, ok := vars["id"]
 	if !ok {
@@ -110,7 +111,14 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 	)
 
 	tests := api.TestLoader.Load(id)
-	verdicts := program.Check(tests)
-	data, _ := json.Marshal(verdicts)
+
+	user := props["user"].(*models.User)
+	verdict := program.Check(tests)
+	if verdict.Status == "OK" {
+		log.Printf("User %d %s solved task #%d\n", user.ID, user.Nickname, id)
+	}
+	data, _ := json.Marshal([]*checker.Verdict{
+		verdict,
+	})
 	w.Write(data)
 }

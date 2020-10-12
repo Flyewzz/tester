@@ -76,13 +76,13 @@ func (p *CppProgram) Run(ctx context.Context, input string) (models.Result, erro
 	}, nil
 }
 
-func (p *CppProgram) Check(tests []*Test) []*Verdict {
+func (p *CppProgram) Check(tests []*Test) *Verdict {
 	fmt.Println("----------------------")
-	var verdicts []*Verdict
 	type Answer struct {
 		result models.Result
 		err    error
 	}
+	var verdict *Verdict = NewVerdict("tests", "OK")
 TESTLOOP:
 	for _, test := range tests {
 		answerCh := make(chan Answer, 1)
@@ -98,42 +98,32 @@ TESTLOOP:
 				err:    err,
 			}
 		}(test)
-		var verdict *Verdict = nil
 		<-ready
 		select {
 		case <-timer.C:
 			cancel() // Kill the process
-			log.Printf("Time limit exceeded for %s:\n", test.Name)
-			verdict = NewVerdict(test.Name, "TL")
+			log.Printf("Time limit exceeded for %s:\n", "tests")
+			verdict = NewVerdict("tests", "TL")
 			verdict.Message = "Time limit exceeded"
-			verdicts = append(verdicts, verdict)
 			break TESTLOOP
 		case answer = <-answerCh:
 			timer.Stop()
 		}
 		if answer.err != nil {
-			log.Printf("Error for %s:\n %s\n", test.Name, answer.err.Error())
 			statusAnswer := "CE"
 
 			if answer.result.ExitCode == 139 || answer.result.ExitCode == 137 {
 				statusAnswer = "ML" // Memory limit
 			}
 
-			verdict = NewVerdict(test.Name, statusAnswer)
+			verdict = NewVerdict("tests", statusAnswer)
 			verdict.Message = answer.err.Error()
-			verdicts = append(verdicts, verdict)
 			break
 		}
 		if test.Output != answer.result.Out {
-			verdict = NewVerdict(test.Name, "WA")
-		} else {
-			verdict = NewVerdict(test.Name, "OK")
-		}
-		fmt.Printf("Result for %s: %s\n", test.Name, verdict.Status)
-		verdicts = append(verdicts, verdict)
-		if verdict.Status == "WA" {
+			verdict = NewVerdict("tests", "WA")
 			break
 		}
 	}
-	return verdicts
+	return verdict
 }
