@@ -67,8 +67,12 @@ caption {
 .task-info {
   font-size: 17px;
   padding-bottom: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 40px;
   color: #00272c;
+}
+
+.task {
+  margin-top: 50px;
 }
 
 .negative-answer {
@@ -99,4 +103,8 @@ caption {
   background: #b0e0e6b4; /* Цвет фона */
   color: #001925;
   cursor: pointer;
+}
+
+.primary-search-bar {
+  background-color: gray;
 }

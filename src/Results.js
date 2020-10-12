@@ -1,5 +1,9 @@
 import React from "react";
 import "./Results.css";
+import { CircularProgress } from "@material-ui/core";
+import Theme from './Theme';
+import { MuiThemeProvider } from "@material-ui/core/styles";
+
 
 class Results extends React.Component {
   getVerdicts = (verdicts) => {
@@ -24,9 +28,7 @@ class Results extends React.Component {
   };
 
   render() {
-    return this.props.verdicts == null ? (
-      <span>Обработка...</span>
-    ) : (
+    return this.props.verdicts ? (
       <table className="table-results">
         <thead>
           <th>Название</th>
@@ -35,6 +37,10 @@ class Results extends React.Component {
         </thead>
         <tbody>{this.getVerdicts(this.props.verdicts)}</tbody>
       </table>
+    ) : (
+      <MuiThemeProvider theme={Theme}>
+        <CircularProgress color="secondary" />
+      </MuiThemeProvider>
     );
   }
 }
