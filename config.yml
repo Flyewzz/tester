@@ -8,6 +8,8 @@ db:
   user: postgres
   database: postgres
   password: password
+  timeout: 5
+  max_connections: 20
 time:
   execution:
     deviation: 0

@@ -8,29 +8,33 @@ import (
 	"time"
 
 	"github.com/Flyewzz/tester/models"
+	"github.com/Flyewzz/tester/validators"
 	"github.com/gorilla/mux"
 )
 
 func (api *ApiManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1024)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	ctx := context.Background()
-	params := r.FormValue
 
-	login := params("login")
-	password := params("password")
-
-	user, err := api.AuthManager.Authenticate(ctx, login, password)
+	user := &models.User{}
+	err = validators.LoginUserValidator(r, user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	ctx := context.Background()
+	user, err = api.AuthManager.Authenticate(ctx, user.Login, user.Password)
+	if err != nil {
+		http.Error(w, err.Error(), 401)
 		return
 	}
 	token, err := api.JWTManager.GenerateToken(ctx, user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
@@ -49,37 +53,33 @@ func (api *ApiManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 func (api *ApiManager) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1024)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	params := r.FormValue
-	login := params("login")
-	email := params("email")
-	name := params("name")
-	password := params("password")
-	//! Don't forget to add a validator!
+
+	user := &models.User{}
+	err = validators.SignUpUserValidator(r, user)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 
 	ctx := context.Background()
-	err = api.AuthManager.SignUp(ctx, &models.User{
-		Login:    login,
-		Email:    email,
-		Name:     name,
-		Password: password,
-	})
+	err = api.AuthManager.SignUp(ctx, user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	user, err := api.AuthManager.Authenticate(ctx, login, password)
+	user, err = api.AuthManager.Authenticate(ctx, user.Login, user.Password)
 	if err != nil || user == nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	token, err := api.JWTManager.GenerateToken(ctx, user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (api ApiManager) AuthMiddleware(next http.Handler) http.HandlerFunc {
 		authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
 		if len(authHeader) != 2 {
 			fmt.Println("Malformed token")
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(401)
 			return
 		}
 		token := authHeader[1]
@@ -100,7 +100,7 @@ func (api ApiManager) AuthMiddleware(next http.Handler) http.HandlerFunc {
 		// user, err := api.SessionManager.GetUser(context.TODO(), token)
 		user, err := api.JWTManager.GetUser(ctx, token)
 		if err != nil || user == nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Error(w, err.Error(), 401)
 			return
 		}
 		vars := mux.Vars(r)

@@ -12,6 +12,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.6.2
+	github.com/thedevsaddam/govalidator v1.9.10
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	gorm.io/driver/postgres v1.0.2
 )

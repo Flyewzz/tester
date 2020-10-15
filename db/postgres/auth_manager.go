@@ -4,19 +4,25 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/Flyewzz/tester/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthManager struct {
-	DB *sql.DB
+	DB      *sql.DB
+	Timeout time.Duration
 }
 
 func (this AuthManager) Authenticate(ctx context.Context, login, password string) (*models.User, error) {
 	var user models.User
 	var hashedPassword []byte
-	err := this.DB.QueryRow(
+
+	ctx, cancel := context.WithTimeout(ctx, this.Timeout)
+	defer cancel()
+	err := this.DB.QueryRowContext(
+		ctx,
 		`SELECT id, login, email, name, password 
 		FROM users 
 		WHERE (login = $1 OR email = $1)`, login).Scan(
@@ -37,9 +43,12 @@ func (this AuthManager) SignUp(ctx context.Context, user *models.User) error {
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
-	_, err = this.DB.Exec(
+	password := string(hashedPassword)
+	ctx, cancel := context.WithTimeout(ctx, this.Timeout)
+	defer cancel()
+	_, err = this.DB.ExecContext(
+		ctx,
 		`INSERT INTO users (login, email, name, password)
-		VALUES ($1, $2, $3, $4)`, user.Login, user.Email, user.Name, user.Password)
+		VALUES ($1, $2, $3, $4)`, user.Login, user.Email, user.Name, password)
 	return err
 }

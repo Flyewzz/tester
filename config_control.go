@@ -30,8 +30,10 @@ func PrepareApiManager(db *sql.DB) *handlers.ApiManager {
 	}
 	deviation := viper.GetInt("time.execution.deviation")
 
+	timeout := viper.GetInt("db.timeout")
 	authManager := postgres.AuthManager{
-		DB: db,
+		DB:      db,
+		Timeout: time.Duration(timeout) * time.Second,
 	}
 	jwtManager := managers.NewJWTManager(
 		time.Hour*time.Duration(viper.GetInt("jwt.duration")),
