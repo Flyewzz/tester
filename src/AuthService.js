@@ -22,13 +22,17 @@ class AuthService {
 
     const request = new Request(url, options);
     const response = await fetch(request);
-    if (response.status != 200) {
-      throw response.status;
-    }
-    return response.text();
-  };
+
+    return response.text().then(text => {
+      return {
+        text,
+        status: response.status,
+      }
+    });
+  }
+
   signUp = async (user) => {
-    const url = config.backendUrl;
+    const url = config.backendUrl + '/auth/signup';
 
     var formData = new FormData();
 
@@ -38,13 +42,18 @@ class AuthService {
 
     const options = {
       method: "POST",
-      credentials: 'include', // include, *same-origin, omit
-      body: user,
+      body: formData,
     };
 
     const request = new Request(url, options);
     const response = await fetch(request);
-    return response.json();
+
+    return response.text().then(text => {
+      return {
+        text,
+        status: response.status,
+      }
+    });
   };
 }
 

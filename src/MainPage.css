@@ -13,6 +13,9 @@ table:last-of-type {
 table {
   /* border:1px solid rgb(160, 160, 160); */
   border-collapse: collapse;
+  -webkit-box-shadow: 2px 2px 10px -1px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 2px 2px 10px -1px rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 2px 10px -1px rgba(0, 0, 0, 0.75);
 }
 
 table td {
@@ -43,6 +46,7 @@ th {
 
 body {
   padding: 20px 20px;
+  background-color: #eff8fab4;
 }
 
 caption {
@@ -107,4 +111,10 @@ caption {
 
 .primary-search-bar {
   background-color: gray;
+}
+
+.task-paginator {
+  margin-top: 60px;
+  margin-bottom: -20px;
+  color: "#CEE8ED",
 }

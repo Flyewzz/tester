@@ -7,7 +7,6 @@ import { MuiThemeProvider } from "@material-ui/core/styles";
 
 class Results extends React.Component {
   getVerdicts = (verdicts) => {
-    console.log(`results ${verdicts.length}`);
     return verdicts.map((verdict) => {
       return (
         <tr>

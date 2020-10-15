@@ -17,6 +17,7 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import { withStyles } from "@material-ui/core/styles/withStyles";
 import { Avatar } from '@material-ui/core';
 import Cookie from "js-cookie";
+import { Redirect, Link } from "react-router-dom";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -86,19 +87,29 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     backgroundColor: '#398A96',
   },
+  link: {
+    cursor: "pointer",
+    textDecoration: "none",
+    color: "inherit",
+    // pointerEvents: "none",       
+  },
 }));
 
 export default function PrimarySearchAppBar(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+  const [isProfileOpen, setProfileStatus] = React.useState(false);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleProfilePageOpen = (event) => {
+    setProfileStatus(true);
+  }
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -124,7 +135,7 @@ export default function PrimarySearchAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Профиль</MenuItem>
+      <MenuItem onClick={handleProfilePageOpen}>Профиль</MenuItem>
       <MenuItem onClick={props.onLogout}>Выйти</MenuItem>
     </Menu>
   );
@@ -169,6 +180,12 @@ export default function PrimarySearchAppBar(props) {
       </MenuItem>
     </Menu>
   );
+  
+  if (isProfileOpen) {
+    return (
+      <Redirect to="/profile" />
+    );
+  }
 
   return (
     <div className={classes.grow}>
@@ -183,7 +200,7 @@ export default function PrimarySearchAppBar(props) {
             <MenuIcon />
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
-            Repetory
+            <Link to="/" className={classes.link} >Repetory</Link>
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
@@ -201,12 +218,12 @@ export default function PrimarySearchAppBar(props) {
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
+              <Badge badgeContent={0} color="secondary">
                 <MailIcon />
               </Badge>
             </IconButton>
             <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
+              <Badge badgeContent={0} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>

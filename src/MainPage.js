@@ -17,6 +17,7 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import { Button, CircularProgress } from "@material-ui/core";
 import PrimarySearchAppBar from "./PrimarySearchAppBar";
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { Pagination } from '@material-ui/lab';
 
 import Theme from "./Theme";
 import Alert from "@material-ui/lab/Alert";
@@ -40,11 +41,11 @@ class MainPage extends React.Component {
         taskInfo: {},
         notification: null,
         user: user,
+        id: this.props.match.params.id,
       },
     };
     this.verdictService = new VerdictService();
     this.taskService = new TaskService();
-    this.id = null;
   }
 
   isLogged = () => {
@@ -56,11 +57,9 @@ class MainPage extends React.Component {
     this.updateStatus("user", null);
   };
 
-  componentDidMount() {
-    this.id = this.props.match.params.id;
-
+  updatePage = (id) => {
     this.taskService
-      .getInfo(this.id, this.token)
+      .getInfo(id, this.token)
       .then((result) => {
         this.updateInfo(result);
       })
@@ -80,7 +79,16 @@ class MainPage extends React.Component {
         enableLiveAutocompletion: true,
         enableSnippets: true,
       });
+      let code = localStorage.getItem(`code ${this.state.items.id}`);
+      if (code) {
+        this.code = code;
+        editor.setValue(this.code);
+      }
     }
+  }
+
+  componentDidMount() {
+    this.updatePage(this.state.items.id);
   }
 
   updateInfo = (info) => {
@@ -123,6 +131,7 @@ class MainPage extends React.Component {
     this.updateNotification(null);
     const editor = this.ace.editor; // The editor object is from Ace's API
     this.code = editor.getValue();
+    localStorage.setItem(`code ${this.state.items.id}`, this.code);
   };
 
   onSubmitClick = (e) => {
@@ -133,7 +142,7 @@ class MainPage extends React.Component {
     }
     this.updateVerdicts(null);
     this.verdictService
-      .getVerdicts(this.id, this.code, this.token)
+      .getVerdicts(this.state.items.id, this.code, this.token)
       .then((result) => {
         this.updateVerdicts(result);
       })
@@ -154,6 +163,11 @@ class MainPage extends React.Component {
     });
   };
 
+  changePage = (e, value) => {
+    this.updateStatus('id', value);
+    this.updatePage(value);
+  }
+
   render() {
     if (!this.isLogged()) {
       return <Redirect to="/login"></Redirect>;
@@ -165,8 +179,12 @@ class MainPage extends React.Component {
             avatar_text={this.state.items.user.name}
             onLogout={this.handleLogout}
           />
+          </MuiThemeProvider>
+          <Pagination count={this.state.items.taskInfo.task_count} value={this.state.items.id} 
+          boundaryCount={3} onChange={this.changePage} className="task-paginator" />
+          <MuiThemeProvider theme={Theme}>
           <div className="task">
-            <div className={"task-title"}>Задание #{this.id}</div>
+            <div className={"task-title"}>Задание #{this.state.items.id}</div>
             <div className={"task-text"}>{this.state.items.taskInfo.text}</div>
             <div className={"task-info"}>
               <Stricts
@@ -206,7 +224,6 @@ class MainPage extends React.Component {
                   color="primary"
                   style={{
                     margin: "10px 0px 20px",
-                    backgroundColor: "#398A96",
                   }}
                   onClick={this.onSubmitClick}
                 >

@@ -16,6 +16,13 @@ import Container from "@material-ui/core/Container";
 import Theme from "./Theme";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 
+import Cookie from "js-cookie";
+import { Redirect } from "react-router-dom";
+import { useState } from "react";
+import AuthService from "./AuthService";
+import { Snackbar } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -51,33 +58,121 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignUp() {
   const classes = useStyles();
+  const [state, setState] = useState({
+    isLogged: Cookie.get("token"),
+    name: "",
+    login: "",
+    email: "",
+    password: "",
+    message: {
+      opened: false,
+      text: '',
+    }
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setState({
+      ...state,
+      [e.target.name]: value,
+    });
+  };
+
+  const handleCloseMessage = (event, reason) => {
+    setState({
+      ...state,
+      message: {
+        opened: false,
+      },
+    });
+  };
+
+  let authService = new AuthService();
+
+  const onSubmitClick = (e) => {
+    e.preventDefault();
+    let user = {
+      name: state.name,
+      login: state.login,
+      email: state.email,
+      password: state.password,
+    };
+    authService
+      .signUp(user)
+      .then((result) => {
+        if (result.status !== 201) {
+          throw result;
+        }
+        Cookie.set("token", result.text);
+        setState({
+          ...state,
+          isLogged: true,
+        });
+      })
+      .catch((err) => {
+        switch (err.status) {
+          case 400:
+            break;
+          case 500:
+            err.text = "Произошла внутренняя ошибка сервера.";
+            break;
+          default:
+            err.text = "Произошла неизвестная ошибка.";
+            break;
+        }
+        setState({
+          ...state,
+          message: {
+            opened: true,
+            text: err.text,
+          }
+        });
+      });
+  };
+
+  if (state.isLogged) {
+    return <Redirect to="/1"></Redirect>;
+  }
 
   return (
     <MuiThemeProvider theme={Theme}>
       <Container component="main" maxWidth="xs">
+      <Snackbar
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          // autoHideDuration={8000}
+          open={state.message.opened}
+          onClose={handleCloseMessage}
+        >
+          <Alert severity="error">{state.message.text}</Alert>
+        </Snackbar>
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up
+            Регистрация
           </Typography>
           <form className={classes.form} noValidate>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
                   autoComplete="fname"
-                  name="firstName"
+                  name="name"
                   variant="outlined"
                   required
                   fullWidth
-                  id="firstName"
-                  label="First Name"
+                  id="name"
+                  label="Имя и фамилия"
+                  value={state.name}
+                  onChange={handleChange}
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item xs={12} sm={6}>
                 <TextField
                   variant="outlined"
                   required
@@ -87,6 +182,19 @@ export default function SignUp() {
                   name="lastName"
                   autoComplete="lname"
                 />
+              </Grid> */}
+              <Grid item xs={12}>
+                <TextField
+                  autoComplete="fname"
+                  name="login"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="login"
+                  label="Логин"
+                  value={state.login}
+                  onChange={handleChange}
+                />
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -94,7 +202,9 @@ export default function SignUp() {
                   required
                   fullWidth
                   id="email"
-                  label="Email Address"
+                  label="Электронная почта"
+                  value={state.email}
+                  onChange={handleChange}
                   name="email"
                   autoComplete="email"
                 />
@@ -105,34 +215,37 @@ export default function SignUp() {
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="Пароль"
+                  value={state.password}
+                  onChange={handleChange}
                   type="password"
                   id="password"
                   autoComplete="current-password"
                 />
               </Grid>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <FormControlLabel
                   control={
                     <Checkbox value="allowExtraEmails" color="primary" />
                   }
                   label="I want to receive inspiration, marketing promotions and updates via email."
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
             <Button
               type="submit"
               fullWidth
               variant="contained"
               color="primary"
+              onClick={onSubmitClick}
               className={classes.submit}
             >
-              Sign Up
+              Зарегистрироваться
             </Button>
             <Grid container justify="flex-end">
               <Grid item>
                 <Link href="/login" variant="body2">
-                  Already have an account? Sign in
+                  Уже есть аккаунт?
                 </Link>
               </Grid>
             </Grid>

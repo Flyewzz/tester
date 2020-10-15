@@ -20,6 +20,8 @@ import AuthService from "./AuthService";
 import { useState } from "react";
 import Cookie from "js-cookie";
 import { Redirect } from "react-router-dom";
+import { Snackbar } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 function Copyright() {
   return (
@@ -59,9 +61,13 @@ export default function LoginPage() {
   let authService = new AuthService();
 
   const [state, setState] = useState({
-    isLogged: Cookie.get('token'),
+    isLogged: Cookie.get("token"),
     login: "",
     password: "",
+    message: {
+      opened: false,
+      text: "",
+    },
   });
 
   // const [cookies, setCookie] = useCookies('token');
@@ -79,92 +85,135 @@ export default function LoginPage() {
     authService
       .login(state.login, state.password)
       .then((result) => {
-        Cookie.set("token", result);
+        if (result.status !== 200) {
+          throw result;
+        }
+        Cookie.set("token", result.text);
         setState({
           ...state,
           isLogged: true,
-        })
+        });
       })
       .catch((err) => {
-        alert(err);
+        switch (err.status) {
+          case 400:
+            break;
+          case 401:
+            err.text =
+              "Произошла ошибка авторизации. Неправильный логин или пароль.";
+            break;
+          case 500:
+            err.text = "Произошла внутренняя ошибка сервера.";
+            break;
+          default:
+            err.text = "Произошла неизвестная ошибка.";
+            break;
+        }
+        setState({
+          ...state,
+          message: {
+            opened: true,
+            text: err.text,
+          },
+        });
       });
   };
 
+  const handleCloseMessage = (event, reason) => {
+    setState({
+      ...state,
+      message: {
+        opened: false,
+      },
+    });
+  };
+
   if (state.isLogged) {
-    return (
-      <Redirect to="/1"></Redirect>
-    )
+    return <Redirect to="/1"></Redirect>;
   }
   return (
-    <MuiThemeProvider theme={Theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <form className={classes.form} noValidate>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="login"
-              label="Email Address / Nickname"
-              name="login"
-              autoComplete="email"
-              value={state.login}
-              onChange={handleChange}
-              autoFocus
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={handleChange}
-              value={state.password}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-              onClick={onSubmitClick}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+    <>
+      <MuiThemeProvider theme={Theme}>
+        <Container component="main" maxWidth="xs">
+          <Snackbar
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            // autoHideDuration={8000}
+            open={state.message.opened}
+            onClose={handleCloseMessage}
+          >
+            <Alert severity="error">{state.message.text}</Alert>
+          </Snackbar>
+          <CssBaseline />
+          <div className={classes.paper}>
+            <Avatar className={classes.avatar}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Вход
+            </Typography>
+            <form className={classes.form} noValidate>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="login"
+                label="Электронная почта / Логин"
+                name="login"
+                autoComplete="email"
+                value={state.login}
+                onChange={handleChange}
+                autoFocus
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Пароль"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                onChange={handleChange}
+                value={state.password}
+              />
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Запомнить меня"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={onSubmitClick}
+              >
+                Войти
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="#" variant="body2">
+                    Забыли пароль?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href="/signup" variant="body2">
+                    {"Зарегистрироваться"}
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link href="/signup" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </form>
-        </div>
-        <Box mt={8}>
-          <Copyright />
-        </Box>
-      </Container>
-    </MuiThemeProvider>
+            </form>
+          </div>
+          <Box mt={8}>
+            <Copyright />
+          </Box>
+        </Container>
+      </MuiThemeProvider>
+    </>
   );
 }

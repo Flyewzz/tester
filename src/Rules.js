@@ -29,7 +29,13 @@ function Rules(props) {
       transcript: "Memory limit",
       description: `Программа расходует слишком много оперативной памяти (например, при бесконечной рекурсии)`,
     },
+    {
+      code: "ME",
+      transcript: "Memory error",
+      description: `Ошибка при работе с памятью (например, доступ к неинициализированному/нулевому указателю, выход за границы массива и т.д.)`,
+    },
   ];
+
   const getCases = (cases) => {
     return cases.map((state) => {
       return (
