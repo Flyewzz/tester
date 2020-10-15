@@ -12,9 +12,9 @@ import (
 func SignUpUserValidator(r *http.Request, u *models.User) error {
 	rules := govalidator.MapData{
 		"login":    []string{"required", "between:6,25"},
-		"email":    []string{"required", "between:4,80"},
+		"email":    []string{"required", "between:4,254"},
 		"name":     []string{"required", "between:3,80"},
-		"password": []string{"required", "between:6,30"},
+		"password": []string{"required", "between:6,"},
 	}
 	messages := govalidator.MapData{
 		"login": []string{
@@ -28,7 +28,7 @@ func SignUpUserValidator(r *http.Request, u *models.User) error {
 			"between:Некорректный ввод имени"},
 		"password": []string{
 			"required:Пароль не может быть пустым",
-			"between:Пароль должен быть длиной от 6 до 30 символов"},
+			"between:Пароль должен быть длиной от 6 символов"},
 	}
 
 	opts := govalidator.Options{
@@ -54,16 +54,16 @@ func SignUpUserValidator(r *http.Request, u *models.User) error {
 
 func LoginUserValidator(r *http.Request, u *models.User) error {
 	rules := govalidator.MapData{
-		"login":    []string{"required", "between:6,25"},
-		"password": []string{"required", "between:6,30"},
+		"login":    []string{"required", "between:6,254"},
+		"password": []string{"required", "between:6,"},
 	}
 	messages := govalidator.MapData{
 		"login": []string{
 			"required:Логин не может быть пустым",
-			"between:Логин должен быть длиной от 6 до 25 символов"},
+			"between:Логин должен быть длиной от 6 до 254 символов"},
 		"password": []string{
 			"required:Пароль не может быть пустым",
-			"between:Пароль должен быть длиной от 6 до 30 символов"},
+			"between:Пароль должен быть длиной от 6 символов"},
 	}
 
 	opts := govalidator.Options{
