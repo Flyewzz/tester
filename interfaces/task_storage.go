@@ -5,5 +5,5 @@ import (
 )
 
 type TaskStorage interface {
-	GetInfo(id int) (*TaskInfo, error)
+	GetInfo(id int) (*TaskInfo, int, error)
 }

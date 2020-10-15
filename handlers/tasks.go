@@ -23,12 +23,32 @@ func (api *ApiManager) TaskInfoGetHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	taskInfo, err := api.TaskStorage.GetInfo(id)
+	taskInfo, taskCount, err := api.TaskStorage.GetInfo(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	data, err := json.Marshal(taskInfo)
+	type Answer struct {
+		ID          int    `json:"id"`
+		Text        string `json:"text"`
+		Ram         string `json:"ram"`
+		HDD         string `json:"hdd"`
+		Time        string `json:"time"`
+		Samples     string `json:"samples"`
+		Limitations string `json:"limitations"`
+		TaskCount   int    `json:"task_count"`
+	}
+	answer := Answer{
+		ID:          taskInfo.ID,
+		Text:        taskInfo.Text,
+		Ram:         taskInfo.Ram,
+		HDD:         taskInfo.HDD,
+		Time:        taskInfo.Time,
+		Samples:     taskInfo.Samples,
+		Limitations: taskInfo.Limitations,
+		TaskCount:   taskCount,
+	}
+	data, err := json.Marshal(answer)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,7 +62,7 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 			log.Println(err)
 		}
 	}()
-	err := r.ParseMultipartForm(0)
+	err := r.ParseMultipartForm(1024 * 1024)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -64,7 +84,7 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 	code := params("code")
 	fmt.Println(code)
 
-	taskInfo, err := api.TaskStorage.GetInfo(id)
+	taskInfo, _, err := api.TaskStorage.GetInfo(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -114,8 +134,10 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 
 	user := props["user"].(*models.User)
 	verdict := program.Check(tests)
-	if verdict.Status == "OK" {
-		log.Printf("User %d %s solved task #%d\n", user.ID, user.Nickname, id)
+	_, err = api.TaskManager.SetStatus(user.ID, taskInfo.ID, verdict.Status)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	data, _ := json.Marshal([]*checker.Verdict{
 		verdict,

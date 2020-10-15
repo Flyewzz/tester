@@ -9,5 +9,6 @@ type ApiManager struct {
 	TaskStorage interfaces.TaskStorage
 	AuthManager interfaces.AuthManager
 	JWTManager  interfaces.JWTManager
+	TaskManager interfaces.TaskManager
 	Deviation   int
 }

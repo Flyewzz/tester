@@ -30,7 +30,7 @@ func (this JWTManager) GenerateToken(ctx context.Context, user *models.User) (st
 		"exp":   time.Now().Add(this.duration).Unix(),
 		"iat":   time.Now().Unix(),
 		"id":    user.ID,
-		"nick":  user.Nickname,
+		"login": user.Login,
 		"name":  user.Name,
 		"email": user.Email,
 		"role":  "user",
@@ -40,7 +40,6 @@ func (this JWTManager) GenerateToken(ctx context.Context, user *models.User) (st
 	if err != nil {
 		return "", errors.New("Token generation failed")
 	}
-	fmt.Printf(`token: %s\n`, tokenString)
 	return tokenString, nil
 }
 
@@ -67,12 +66,11 @@ func (this JWTManager) GetUser(ctx context.Context, token string) (*models.User,
 			return nil, err
 		}
 		user := &models.User{
-			ID:       id,
-			Nickname: fmt.Sprintf("%v", claims["nick"]),
-			Name:     fmt.Sprintf("%v", claims["name"]),
-			Email:    fmt.Sprintf("%v", claims["email"]),
+			ID:    id,
+			Login: fmt.Sprintf("%v", claims["login"]),
+			Name:  fmt.Sprintf("%v", claims["name"]),
+			Email: fmt.Sprintf("%v", claims["email"]),
 		}
-		fmt.Printf("A token was received:\n- nick: %s\n- name: %s\n", claims["nick"], claims["name"])
 		return user, nil
 	} else {
 		fmt.Println(err)

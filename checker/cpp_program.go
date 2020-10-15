@@ -112,7 +112,9 @@ TESTLOOP:
 		if answer.err != nil {
 			statusAnswer := "CE"
 
-			if answer.result.ExitCode == 139 || answer.result.ExitCode == 137 {
+			if answer.result.ExitCode == 139 {
+				statusAnswer = "ME" // Memory error
+			} else if answer.result.ExitCode == 137 {
 				statusAnswer = "ML" // Memory limit
 			}
 

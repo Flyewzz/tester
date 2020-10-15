@@ -47,20 +47,21 @@ func (api *ApiManager) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiManager) SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(1024)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	params := r.PostFormValue
-	nick := params("nick")
+	params := r.FormValue
+	login := params("login")
 	email := params("email")
 	name := params("name")
 	password := params("password")
 	//! Don't forget to add a validator!
 
-	err = api.AuthManager.SignUp(context.Background(), &models.User{
-		Nickname: nick,
+	ctx := context.Background()
+	err = api.AuthManager.SignUp(ctx, &models.User{
+		Login:    login,
 		Email:    email,
 		Name:     name,
 		Password: password,
@@ -69,7 +70,21 @@ func (api *ApiManager) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+
+	user, err := api.AuthManager.Authenticate(ctx, login, password)
+	if err != nil || user == nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	token, err := api.JWTManager.GenerateToken(ctx, user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(201)
+	w.Write([]byte(token))
 }
 
 func (api ApiManager) AuthMiddleware(next http.Handler) http.HandlerFunc {
