@@ -1,24 +1,31 @@
 import React from "react";
-import {Redirect, Route} from 'react-router';
-import {withRouter, Switch} from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
-import MainPage from './MainPage';
-import LoginPage from './LoginPage';
-import SignUpPage from './SignUpPage';
-import ProfilePage from './ProfilePage';
+import routes from "./routes";
+import withTracker from "./withTracker";
 
-function App() {
-  return (
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./shards-dashboard/styles/shards-dashboards.1.1.0.min.css";
+
+export default () => (
+  <Router basename={process.env.REACT_APP_BASENAME || ""}>
     <div>
-      <Switch>
-        <Route path="/login" component={LoginPage} />
-        <Route path="/signup" component={SignUpPage} />
-        <Route path="/profile" component={ProfilePage} />
-        <Route exact path="/:id" component={MainPage} />
-        <Route exact path="/" component={() => <Redirect to="/1" />} />
-      </Switch>
+      {routes.map((route, index) => {
+        return (
+          <Route
+            key={index}
+            path={route.path}
+            exact={route.exact}
+            component={withTracker(props => {
+              return (
+                <route.layout {...props}>
+                  <route.component {...props} />
+                </route.layout>
+              );
+            })}
+          />
+        );
+      })}
     </div>
-  );
-}
-
-export default withRouter(App);
+  </Router>
+);
