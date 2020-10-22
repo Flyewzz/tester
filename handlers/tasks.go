@@ -2,17 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/Flyewzz/tester/checker"
 	"github.com/Flyewzz/tester/models"
-	uuid "github.com/satori/go.uuid"
 )
 
 func (api *ApiManager) TaskInfoGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,39 +77,12 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 	}
 	params := r.FormValue
 	code := params("code")
-	fmt.Println(code)
 
 	taskInfo, _, err := api.TaskStorage.GetInfo(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	folderPath := "checker/task/" +
-		strings.Replace(uuid.NewV4().String(),
-			"-", "", -1)
-
-	programPath := filepath.Join(folderPath, "main.cpp")
-
-	err = os.Mkdir(folderPath, 0700)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer os.RemoveAll(folderPath)
-
-	programFile, err := os.Create(programPath)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer programFile.Close()
-	_, err = programFile.WriteString(code)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	timeLimit, err := strconv.Atoi(taskInfo.Time)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -122,18 +90,20 @@ func (api *ApiManager) TaskCheckerHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Deviation depends on computer's power
-	program := checker.NewCppProgram(
-		programPath,
-		taskInfo.Ram,
+	program, err := api.ProgramManager.Create(taskInfo.Ram,
 		taskInfo.HDD,
 		".800",
-		timeLimit+api.Deviation,
-	)
+		timeLimit+api.Deviation, code)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	tests := api.TestLoader.Load(id)
 
 	user := props["user"].(*models.User)
 	verdict := program.Check(tests)
+	program.Remove()
 	_, err = api.TaskManager.SetStatus(user.ID, taskInfo.ID, verdict.Status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

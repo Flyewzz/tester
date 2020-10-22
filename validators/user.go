@@ -14,7 +14,7 @@ func SignUpUserValidator(r *http.Request, u *models.User) error {
 		"login":    []string{"required", "between:6,25"},
 		"email":    []string{"required", "between:4,254"},
 		"name":     []string{"required", "between:3,80"},
-		"password": []string{"required", "between:6,"},
+		"password": []string{"required", "between:6,64"},
 	}
 	messages := govalidator.MapData{
 		"login": []string{
@@ -55,7 +55,7 @@ func SignUpUserValidator(r *http.Request, u *models.User) error {
 func LoginUserValidator(r *http.Request, u *models.User) error {
 	rules := govalidator.MapData{
 		"login":    []string{"required", "between:6,254"},
-		"password": []string{"required", "between:6,"},
+		"password": []string{"required", "between:6,64"},
 	}
 	messages := govalidator.MapData{
 		"login": []string{

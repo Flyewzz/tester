@@ -42,12 +42,14 @@ func PrepareApiManager(db *sql.DB) *handlers.ApiManager {
 	taskManager := postgres.TaskManager{
 		DB: db,
 	}
+	programManager := managers.ProgramManager{}
 	return &handlers.ApiManager{
-		TestLoader:  loader,
-		TaskStorage: taskStorage,
-		Deviation:   deviation,
-		AuthManager: authManager,
-		JWTManager:  jwtManager,
-		TaskManager: taskManager,
+		TestLoader:     loader,
+		TaskStorage:    taskStorage,
+		Deviation:      deviation,
+		AuthManager:    authManager,
+		JWTManager:     jwtManager,
+		TaskManager:    taskManager,
+		ProgramManager: programManager,
 	}
 }

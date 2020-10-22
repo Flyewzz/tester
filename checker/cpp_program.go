@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -90,6 +91,7 @@ TESTLOOP:
 		timer := time.NewTimer(time.Duration(p.TimeLimit) * time.Millisecond)
 		ready := make(chan struct{})
 		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		go func(test *Test) {
 			ready <- struct{}{}
 			result, err := p.Run(ctx, test.Input)
@@ -128,4 +130,9 @@ TESTLOOP:
 		}
 	}
 	return verdict
+}
+
+func (p *CppProgram) Remove() error {
+	folderPath, _ := filepath.Abs(filepath.Dir(p.Path))
+	return os.RemoveAll(folderPath)
 }

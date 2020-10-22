@@ -8,5 +8,6 @@ import (
 
 type Program interface {
 	Run(ctx context.Context, input string) (models.Result, error)
-	Check() []*Verdict
+	Check(tests []*Test) *Verdict
+	Remove() error
 }

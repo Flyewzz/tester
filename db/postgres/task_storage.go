@@ -24,7 +24,7 @@ func (this TaskStorage) GetInfo(id int) (*models.TaskInfo, int, error) {
 		return nil, 0, err
 	}
 	var taskCount int = 0
-	//! 2 requests is bad. Need to fix it as soon as possible.
+	//! Temporary solution. 2 requests is bad. Need to fix it as soon as possible.
 	err = this.DB.QueryRow(
 		`SELECT COUNT(*) FROM tasks;`).
 		Scan(&taskCount)
